@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:if value="$(arg simulation)">
+    <xacro:property name="ros2_control_system" value="GazeboSimSystem"/>
+  </xacro:if>
+  <xacro:unless value="$(arg simulation)">
+    <xacro:property name="ros2_control_system" value="SystemOdriHardware"/>
+  </xacro:unless>
+
+  <ros2_control name="${ros2_control_system}" type="system">
+
+      <xacro:if value="$(arg simulation)">
+        <hardware>
+          <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+        </hardware>
+      </xacro:if>
+      <xacro:unless value="$(arg simulation)">
+        <hardware>
+          <plugin>ros2_control_odri/SystemOdriHardware</plugin>
+          <xacro:property name="testbed_config_yaml" value="$(find testbed_hw)/config/testbed_config.yaml" />
+          <param name="odri_config_yaml">${testbed_config_yaml}</param>
+          <param name="desired_starting_position">0.0 0.0</param>
+          <param name="default_joint_cmd">left_joint 0.0 0.0 0.0 1000.0 0.05 right_joint 0.0 0.0 0.0 1000.0 0.05</param>
+          <param name="default_joint_state">left_joint 0.0 0.0 0.0 1000.0 0.05 right_joint 0.0 0.0 0.0 1000.0 0.05</param>
+        </hardware>
+      </xacro:unless>
+
+      <joint name="left_joint">
+        <command_interface name="position">
+          <param name="min">-0.9</param>
+          <param name="max">0.9</param>
+        </command_interface>
+        <command_interface name="velocity">
+          <param name="min">-1</param>
+          <param name="max">1</param>
+        </command_interface>
+        <command_interface name="effort">
+          <param name="min">-1</param>
+          <param name="max">1</param>
+        </command_interface>
+        <command_interface name="gain_kp">
+          <param name="min">-1000</param>
+          <param name="max">1000</param>
+        </command_interface>
+        <command_interface name="gain_kd">
+          <param name="min">-1000</param>
+          <param name="max">1000</param>
+        </command_interface>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+        <state_interface name="effort"/>
+        <state_interface name="gain_kp"/>
+        <state_interface name="gain_kd"/>
+      </joint>
+
+      <joint name="right_joint">
+        <command_interface name="position">
+          <param name="min">-0.9</param>
+          <param name="max">0.9</param>
+        </command_interface>
+        <command_interface name="velocity">
+          <param name="min">-1</param>
+          <param name="max">1</param>
+        </command_interface>
+        <command_interface name="effort">
+          <param name="min">-1</param>
+          <param name="max">1</param>
+        </command_interface>
+        <command_interface name="gain_kp">
+          <param name="min">-1000</param>
+          <param name="max">1000</param>
+        </command_interface>
+        <command_interface name="gain_kd">
+          <param name="min">-1000</param>
+          <param name="max">1000</param>
+        </command_interface>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+        <state_interface name="effort"/>
+        <state_interface name="gain_kp"/>
+        <state_interface name="gain_kd"/>
+      </joint>
+    </ros2_control>
+
+    <xacro:if value="$(arg simulation)">
+        <gazebo>
+            <plugin filename="libgz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+                <robot_param>robot_description</robot_param>
+                <robot_param_node>robot_state_publisher</robot_param_node>
+                <parameters>$(find testbed_control)/config/controllers.yaml</parameters>
+                <controller_manager_prefix_node_name>controller_manager</controller_manager_prefix_node_name>
+            </plugin>
+        </gazebo>
+    </xacro:if>
+</robot>
